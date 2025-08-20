@@ -4,25 +4,40 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // ✅ Accede al servidor HTTP subyacente (Express) para desactivar ETag
-  const httpAdapter = app.getHttpAdapter();
-  const expressApp = httpAdapter.getInstance();
-  expressApp.disable('etag'); // Desactiva ETag (opcional, mejora caché en algunos casos)
+  // Desactivar ETag (opcional)
+  app.getHttpAdapter().getInstance().disable('etag');
 
-  // ✅ Habilita CORS para que tu frontend en Vercel pueda hacer peticiones
+  // Lista de orígenes permitidos
+  const allowedOrigins = [
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+    'https://myapp-frontend-bvc5.vercel.app',
+  
+  ];
+
+  // Habilitar CORS
   app.enableCors({
-    origin: ['https://myapp-frontend-bvc5.vercel.app'],// ← Cambia por tu URL real
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    credentials: true, // Si usas cookies o auth con credenciales
+    origin: (origin, callback) => {
+      // Si no hay origen (ej: llamadas curl o Postman), permitir
+      if (!origin) return callback(null, true);
+
+      // Verificar si el origen está en la lista permitida
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        console.warn(`CORS bloqueado para origen: ${origin}`);
+        callback(new Error('No permitido por CORS'));
+      }
+    },
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    credentials: true, // Importante si usas cookies o JWT en headers
   });
 
-  // ✅ Usa el puerto asignado por Render (process.env.PORT)
   const port = process.env.PORT || 3000;
-
   await app.listen(port);
 
-  // ✅ Mensaje de consola útil
-  console.log(`🚀 Servidor corriendo en http://localhost:${port}`);
+  console.log(`🚀 Servidor corriendo en puerto ${port}`);
   console.log(`📦 Entorno: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`🌐 CORS habilitado para: ${allowedOrigins.join(', ')}`);
 }
 bootstrap();
