@@ -11,7 +11,7 @@ async function bootstrap() {
 
   // ✅ Habilita CORS para que tu frontend en Vercel pueda hacer peticiones
   app.enableCors({
-    origin: ['https://mi-proyecto.vercel.app'], // ← Cambia por tu URL real
+    origin: ['https://myapp-frontend-bvc5.vercel.app'],// ← Cambia por tu URL real
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true, // Si usas cookies o auth con credenciales
   });
