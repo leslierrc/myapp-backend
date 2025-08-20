@@ -1,16 +1,28 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import * as express from 'express'; // Asegúrate de tener express importado
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // Accede al objeto Express subyacente
-  const expressApp = app.getHttpAdapter().getInstance();
-  expressApp.disable('etag'); // ✅ Desactiva ETag
+  // ✅ Accede al servidor HTTP subyacente (Express) para desactivar ETag
+  const httpAdapter = app.getHttpAdapter();
+  const expressApp = httpAdapter.getInstance();
+  expressApp.disable('etag'); // Desactiva ETag (opcional, mejora caché en algunos casos)
 
-  app.enableCors();
+  // ✅ Habilita CORS para que tu frontend en Vercel pueda hacer peticiones
+  app.enableCors({
+    origin: ['https://mi-proyecto.vercel.app'], // ← Cambia por tu URL real
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true, // Si usas cookies o auth con credenciales
+  });
 
-  await app.listen(3000);
+  // ✅ Usa el puerto asignado por Render (process.env.PORT)
+  const port = process.env.PORT || 3000;
+
+  await app.listen(port);
+
+  // ✅ Mensaje de consola útil
+  console.log(`🚀 Servidor corriendo en http://localhost:${port}`);
+  console.log(`📦 Entorno: ${process.env.NODE_ENV || 'development'}`);
 }
 bootstrap();

@@ -1,14 +1,12 @@
-import { TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
+import * as dotenv from 'dotenv';
 
-const config: TypeOrmModuleOptions = {
+dotenv.config();
+
+export const AppDataSource = new DataSource({
   type: 'mysql',
-  host: 'localhost',
-  port: 3306,
-  username: 'root',
-  password: 'root123',
-  database: 'miweb',
+  url: process.env.MYSQL_PUBLIC_URL || process.env.DATABASE_URL,
+  synchronize: true, // ⚠️ Solo en desarrollo
   entities: [__dirname + '/**/*.entity{.ts,.js}'],
-  synchronize: true,
-};
-
-export default config;
+  logging: false,
+});

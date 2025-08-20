@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: myapp-backend
+    env: node
+    plan: free
+    region: oregon  # opcional, pero puedes especificarlo
+    buildCommand: npm install && npm run build
+    startCommand: npm run start:prod
+    envVars:
+  - key: NODE_ENV
+    value: production
+  - key: MYSQL_PUBLIC_URL
+    value: mysql://root:VOSlRpVArDnebXvFAEMfFthebZqtJqC@maglev.proxy.rlwy.net:20400/railway
+  - key: DATABASE_URL
+    value: mysql://root:VOSlRpVArDnebXvFAEMfFthebZqtJqC@maglev.proxy.rlwy.net:20400/railway
+  - key: JWT_SECRET
+    generateValue: true
